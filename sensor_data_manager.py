@@ -10,7 +10,7 @@ class SensorDataManager:
         self.baud_rate = baud_rate
         self.data_lock = threading.Lock()  # Lock for thread-safe operations
         self.sensor_data = {
-            "sensor_info": {"location": "default", "error": False},
+            "sensor_info": {"location": "", "error": False, "status": ""},
             "climate": {"temperature": -1, "humidity": -1},
         }
 
@@ -26,8 +26,8 @@ class SensorDataManager:
                     if serial_data:
                         print(f"Received serial data: {serial_data}")
                         data_dict = {
-                            "sensor_info": {"location": "", "error": False},
-                            "climate": {"temperature": 0, "humidity": 0},
+                            "sensor_info": {"location": "", "error": False, "status": ""},
+                            "climate": {"temperature": -1, "humidity": -1},
                         }
                         parts = serial_data.split(",")
 
@@ -35,6 +35,8 @@ class SensorDataManager:
                             key, value = part.split(":")
                             if key == "error":
                                 data_dict["sensor_info"]["error"] = bool(int(value))
+                            elif key == "status":
+                                data_dict["sensor_info"]["status"] = value
                             elif key == "location":
                                 data_dict["sensor_info"]["location"] = value
                             elif key == "temperature":
