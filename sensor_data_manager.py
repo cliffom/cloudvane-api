@@ -14,29 +14,35 @@ class SensorDataManager:
         self.sensor_data = {}
 
     def read_udp_data(self, buffer_size=1024):
-        udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        udp_socket.bind(("", self.udp_port))
+        try:
+            udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            udp_socket.bind(("", self.udp_port))
+            print(f"Starting to listen for UDP data on port {self.udp_port}.")
 
-        print(f"Starting to listen for UDP data on port {self.udp_port}.")
+            while True:
+                print("Attempting to read UDP data...")
+                try:
+                    udp_data, _ = udp_socket.recvfrom(buffer_size)
+                    udp_data = udp_data.decode("utf-8").strip()
 
-        while True:
-            print("Waiting for UDP data...")
-            try:
-                udp_data, _ = udp_socket.recvfrom(buffer_size)
-                udp_data = udp_data.decode("utf-8").strip()
+                    if udp_data:
+                        print(f"Received UDP data: {udp_data}")
+                        data_dict = self.parse_data(udp_data)
 
-                if udp_data:
-                    print(f"Received UDP data: {udp_data}")
-                    data_dict = self.parse_data(udp_data)
+                        with self.data_lock:
+                            location = data_dict["sensor_info"]["location"]
+                            self.sensor_data[location] = data_dict
+                            print(
+                                f"Updated sensor_data for {location}: {self.sensor_data}"
+                            )
 
-                    with self.data_lock:
-                        location = data_dict["sensor_info"]["location"]
-                        self.sensor_data[location] = data_dict
-                        print(f"Updated sensor_data for {location}: {self.sensor_data}")
+                except Exception as e:
+                    print(f"Error reading from udp: {e}")
 
-            except Exception as e:
-                print(f"Error reading from UDP: {e}")
-            time.sleep(60)
+                time.sleep(60)
+
+        except Exception as e:
+            print(f"An error occured: {e}")
 
     def read_serial_data(self):
         try:
@@ -44,7 +50,7 @@ class SensorDataManager:
             print(f"Starting to read from serial port {self.serial_port}.")
 
             while True:
-                print("Waiting for serial data...")
+                print("Attempting to read serial data...")
                 try:
                     serial_data = ser.readline().decode("utf-8").strip()
                     if serial_data:
@@ -60,7 +66,8 @@ class SensorDataManager:
 
                 except Exception as e:
                     print(f"Error reading from serial: {e}")
-                time.sleep(1)
+
+                time.sleep(60)
 
         except serial.SerialException as e:
             print(f"Serial port error: {e}")
