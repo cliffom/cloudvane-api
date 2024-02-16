@@ -79,6 +79,7 @@ class SensorDataManager:
         data_dict = {
             "sensor_info": {"location": "", "error": False, "status": ""},
             "climate": {"temperature": -1, "humidity": -1},
+            "last_updated": "",
         }
         parts = data.split(",")
 
@@ -95,6 +96,7 @@ class SensorDataManager:
             elif key == "humidity":
                 data_dict["climate"]["humidity"] = int(float(value))
 
+        data_dict["last_updated"] = time.time()
         return data_dict
 
     def get_data(self):
