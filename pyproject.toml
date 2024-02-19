@@ -10,6 +10,7 @@ python = "^3.10"
 Flask = "^3.0.2"
 Flask-Cors = "^4.0.0"
 pyserial = "^3.5"
+gunicorn = "^21.2.0"
 
 
 [tool.poetry.group.dev.dependencies]
