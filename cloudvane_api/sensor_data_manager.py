@@ -90,7 +90,10 @@ class SensorDataManager:
             elif key == "status":
                 data_dict["sensor_info"]["status"] = value
             elif key == "location":
-                data_dict["sensor_info"]["location"] = value
+                # TODO: Update the Garage sensor to return the correct value
+                data_dict["sensor_info"]["location"] = (
+                    "Garage" if value == "Office" else value
+                )
             elif key == "temperature":
                 data_dict["climate"]["temperature"] = int(float(value))
             elif key == "humidity":
